@@ -1,4 +1,5 @@
 ﻿using BepInEx;
+using BepInEx.Bootstrap;
 using BepInEx.Configuration;
 using BepInEx.Logging;
 using HarmonyLib;
@@ -9,16 +10,25 @@ using UnityEngine;
 namespace HalloweenAction
 {
     [BepInPlugin(PLUGIN_GUID, PLUGIN_NAME, PLUGIN_VERSION)]
+    [BepInDependency(GUID_LOBBY_COMPATIBILITY, BepInDependency.DependencyFlags.SoftDependency)]
     public class Plugin : BaseUnityPlugin
     {
-        const string PLUGIN_GUID = "butterystancakes.lethalcompany.halloweenaction", PLUGIN_NAME = "Halloween Action", PLUGIN_VERSION = "1.0.0";
+        internal const string PLUGIN_GUID = "butterystancakes.lethalcompany.halloweenaction", PLUGIN_NAME = "Halloween Action", PLUGIN_VERSION = "1.0.1";
         internal static new ManualLogSource Logger;
+
+        const string GUID_LOBBY_COMPATIBILITY = "BMX.LobbyCompatibility";
 
         internal static ConfigEntry<float> configChance, configEclipseChance;
 
         void Awake()
         {
             Logger = base.Logger;
+
+            if (Chainloader.PluginInfos.ContainsKey(GUID_LOBBY_COMPATIBILITY))
+            {
+                Logger.LogInfo("CROSS-COMPATIBILITY - Lobby Compatibility detected");
+                LobbyCompatibility.Init();
+            }
 
             AcceptableValueRange<float> percentage = new(0f, 1f);
             string chanceHint = " (0 = never, 1 = guaranteed, or anything in between - 0.5 = 50% chance)";
